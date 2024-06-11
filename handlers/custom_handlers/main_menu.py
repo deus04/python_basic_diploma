@@ -10,6 +10,7 @@ import os
 from . import get_high_request
 from . import get_low_request
 from . import get_castom_daydata
+#from . import main_menu
 from dotenv import load_dotenv, find_dotenv
 
 
@@ -34,7 +35,7 @@ def construct_answer(data):
 
 @bot.message_handler(content_types=['text'])
 def main_menu(message):
-    if message.text == '👋 Поздороваться' or message.text == 'Назад':
+    if message.text == '👋 Поздороваться':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('Ближайший самолет Сочи -> Белград на завтра')
         markup.add(btn1)
@@ -46,8 +47,8 @@ def main_menu(message):
         btn2 = types.KeyboardButton('High')
         btn3 = types.KeyboardButton('Custom')
         btn4 = types.KeyboardButton('History')
-        btn5 = types.KeyboardButton('Назад')
-        markup.add(btn1, btn2, btn3, btn4, btn5)
+        #btn5 = types.KeyboardButton('Назад')
+        markup.add(btn1, btn2, btn3, btn4)
         bot.send_message(message.from_user.id, '❓ Какой запрос нужен?', reply_markup=markup)
 
     elif message.text == 'Low':
@@ -57,8 +58,16 @@ def main_menu(message):
         bot.register_next_step_handler(message, get_high_request)
 
     elif message.text == 'Custom':
+        bot.send_message(message.from_user.id, 'Выдает кастомный ответ', parse_mode='Markdown')
+        bot.send_message(message.from_user.id, 'Хочешь поменять даты?', parse_mode='Markdown')
+        bot.send_message(message.from_user.id, 'Введите дату в формате yyyy-mm-dd    (main_menu)', parse_mode='Markdown')
         bot.register_next_step_handler(message, get_castom_daydata)
 
     elif message.text == 'History':
         bot.send_message(message.from_user.id, 'Показывает историю запросов', parse_mode='Markdown')
         bot.send_message(message.from_user.id, 'Пока не работает', parse_mode='Markdown')
+
+    else:
+        bot.send_message(message.from_user.id, 'Такой команды я не знаю', parse_mode='Markdown')
+    #elif user_message == 'Назад':
+        #bot.send_message(message.from_user.id, 'Возврат в главное меню', parse_mode='Markdown')

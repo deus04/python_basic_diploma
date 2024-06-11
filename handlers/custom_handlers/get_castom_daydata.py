@@ -7,7 +7,7 @@ from telebot import types
 import requests
 import json
 import os
-from . import get_castom_daydata
+#from . import get_castom_daydata
 from . import main_menu
 
 
@@ -32,9 +32,6 @@ def construct_answer(data):
 
 @bot.message_handler(content_types=['text'])
 def get_castom_daydata(message):
-    bot.send_message(message.from_user.id, 'Выдает кастомный ответ', parse_mode='Markdown')
-    bot.send_message(message.from_user.id, 'Хочешь поменять даты?', parse_mode='Markdown')
-    bot.send_message(message.from_user.id, 'Введите дату в формате yyyy-mm-dd', parse_mode='Markdown')
     try:
         struct = time.strptime(message.text, '%Y-%m-%d')
         valid_date = time.strftime('%Y-%m-%d', struct)
@@ -44,7 +41,7 @@ def get_castom_daydata(message):
         btn1 = types.KeyboardButton('Назад')
         markup.add(btn1)
         bot.send_message(message.from_user.id, 'Неверная дата, попробуй еще раз', reply_markup=markup)
-        if message.text == 'Назад':
+        if message.text == 'Назад':  # TODO не понимаю почему эта кнопка не работает. Не хочет возвращаться в главное меню
             bot.register_next_step_handler(message, main_menu)
         else:
             bot.register_next_step_handler(message, get_castom_daydata)
@@ -73,3 +70,18 @@ def get_castom_daydata(message):
         bot.send_message(message.from_user.id, construct_answer(data), reply_markup=markup)
         if message.text == 'Назад':
             bot.register_next_step_handler(message, main_menu)
+
+
+
+@bot.message_handler(content_types=['text'])
+def wrong_castom_daydata(message):
+    bot.send_message(message.from_user.id, 'верхушка вронг кастом', parse_mode='Markdown')
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)  # создание новых кнопок
+    btn1 = types.KeyboardButton('Назад')
+    btn2 = types.KeyboardButton('Попробовать снова')
+    markup.add(btn1, btn2)
+    bot.send_message(message.from_user.id, 'Неверная дата, попробуете еще раз?   (wrong_castom_daydata)', reply_markup=markup)
+    if message.text == 'Назад':
+        bot.register_next_step_handler(message, main_menu)
+    elif message.text == 'Попробовать снова':
+        bot.register_next_step_handler(message, get_castom_daydata)
