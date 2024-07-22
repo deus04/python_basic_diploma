@@ -4,11 +4,12 @@ import telebot
 from telebot import types
 from loader import bot
 from telebot import types
+from handlers.custom_handlers import main_menu
 import requests
 import json
 import os
 #from . import get_castom_daydata
-from . import main_menu
+
 
 
 api_token = os.getenv("RAPID_API_KEY")
@@ -30,8 +31,8 @@ def construct_answer(data):
     return result
 
 
-@bot.message_handler(content_types=['text'])
-def get_castom_daydata(message):
+def custom_daydata_request(valid_date):
+    '''
     try:
         struct = time.strptime(message.text, '%Y-%m-%d')
         valid_date = time.strftime('%Y-%m-%d', struct)
@@ -41,38 +42,38 @@ def get_castom_daydata(message):
         btn1 = types.KeyboardButton('Назад')
         markup.add(btn1)
         bot.send_message(message.from_user.id, 'Неверная дата, попробуй еще раз', reply_markup=markup)
-        if message.text == 'Назад':  # TODO не понимаю почему эта кнопка не работает. Не хочет возвращаться в главное меню
+        print(message.text)
+        if message.text == 'Назад':  #
+            print('1')
             bot.register_next_step_handler(message, main_menu)
         else:
+            print('2')
             bot.register_next_step_handler(message, get_castom_daydata)
+        print('after', message.text)
     else:
-        bot.send_message(message.from_user.id, 'Самый дешевый билет Сочи -> Белград', parse_mode='Markdown')
-        my_req = requests.get('https://api.travelpayouts.com/aviasales/v3/prices_for_dates?'
-                              'origin=AER&'
-                              'destination=BEG&'
-                              'departure_at={departure_at}&'
-                              'unique=true&'
-                              'sorting=price&'
-                              'direct=false&'
-                              'currency=rub&'
-                              'limit=10&'
-                              'page=1&'
-                              'one_way=true&'
-                              'token={token}'.format(departure_at=valid_date, token=api_token))
+    '''
+    my_req = requests.get('https://api.travelpayouts.com/aviasales/v3/prices_for_dates?'
+                          'origin=AER&'
+                          'destination=BEG&'
+                          'departure_at={departure_at}&'
+                          'unique=true&'
+                          'sorting=price&'
+                          'direct=false&'
+                          'currency=rub&'
+                          'limit=10&'
+                          'page=1&'
+                          'one_way=true&'
+                          'token={token}'.format(departure_at=valid_date, token=api_token))
 
-        data = json.loads(my_req.text)
-        print('data ok')
-        with open('result.json', 'w', encoding='utf-8') as file:
-            json.dump(data, file, indent=4, ensure_ascii=False)
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)  # создание новых кнопок
-        btn1 = types.KeyboardButton('Назад')
-        markup.add(btn1)
-        bot.send_message(message.from_user.id, construct_answer(data), reply_markup=markup)
-        if message.text == 'Назад':
-            bot.register_next_step_handler(message, main_menu)
+    data = json.loads(my_req.text)
+    print('data ok')
+    with open('result.json', 'w', encoding='utf-8') as file:
+        json.dump(data, file, indent=4, ensure_ascii=False)
+    print(construct_answer(data))
+    return construct_answer(data)
 
 
-
+'''
 @bot.message_handler(content_types=['text'])
 def wrong_castom_daydata(message):
     bot.send_message(message.from_user.id, 'верхушка вронг кастом', parse_mode='Markdown')
@@ -85,3 +86,4 @@ def wrong_castom_daydata(message):
         bot.register_next_step_handler(message, main_menu)
     elif message.text == 'Попробовать снова':
         bot.register_next_step_handler(message, get_castom_daydata)
+'''

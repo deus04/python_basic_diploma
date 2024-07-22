@@ -1,6 +1,7 @@
 from telebot import types
 from loader import bot
 #from telebot.types import Message
+from handlers.custom_handlers import main_menu
 
 
 @bot.message_handler(commands=['start'])
@@ -10,6 +11,7 @@ def start(message):
     btn1 = types.KeyboardButton("👋 Поздороваться")
     markup.add(btn1)
     bot.send_message(message.from_user.id, "👋 Привет! Я твой бот-помошник!", reply_markup=markup)
+    bot.register_next_step_handler(message, main_menu)
 
 #
 # @bot.message_handler(commands=["start"])
