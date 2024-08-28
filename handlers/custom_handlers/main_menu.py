@@ -1,6 +1,6 @@
-import datetime
 import time
-import os
+from handlers.default_handlers import start # TODO добавил эту строку и только тогда заработали дефолтные хендлеры
+                                            #  но только старт и хелп
 from loader import bot
 from states.dialog_state import UserDialogState
 from telebot.types import Message
@@ -10,20 +10,38 @@ from keyboards.reply.menu_keyboard import cancel
 from utils.misc.get_low_request import low_request
 from utils.misc.get_high_request import high_request
 from utils.misc.get_custom_daydata import custom_daydata_request
+#from handlers.default_handlers import echo     # TODO если добавить ээту строку, то ехо снова начинает все перехватывать
+import datetime
+from models import Task, User, create_models
+
+
+def save_to_history(message):
+    today = datetime.datetime.now()
+    with bot.retrieve_data(message.from_user.id) as data:
+        data["new_task"] = {"user_id": message.from_user.id}
+        data["new_task"]["title"] = message.text
+        data["new_task"]["due_date"] = today
+    new_task = Task(**data["new_task"])
+    new_task.save()
+    bot.send_message(message.from_user.id, f"Добавлена запись в историю:\n{new_task}")
 
 
 @bot.message_handler(state=UserDialogState.start_dialog) # Ловим состояние
 def handle_start_dialog(message: Message):
     if message.text == 'Самый дешевый - Low':
+        save_to_history(message)
         bot.send_message(message.from_user.id, 'Выбран Low', reply_markup=get_ticket())
         bot.set_state(message.from_user.id, UserDialogState.state_low)
     elif message.text == 'Самый популярный - High':
+        save_to_history(message)
         bot.send_message(message.from_user.id, 'Выбран High', reply_markup=get_ticket())
         bot.set_state(message.from_user.id, UserDialogState.state_high)
     elif message.text == 'Изменить дату':
         bot.send_message(message.from_user.id, 'Выбран Custom')
         bot.send_message(message.from_user.id, 'Введите дату в формате YYYY-MM-DD')
         bot.set_state(message.from_user.id, UserDialogState.state_custom)
+    else:
+        bot.set_state(message.from_user.id, state=None)
 
 
 @bot.message_handler(state=UserDialogState.state_low)
@@ -50,28 +68,21 @@ def handle_state_custom(message: Message):
         struct = time.strptime(message.text, '%Y-%m-%d')
         valid_date = time.strftime('%Y-%m-%d', struct)
         bot.send_message(message.from_user.id, 'Сейчас посмотрим')
+
     except ValueError:
         bot.send_message(message.from_user.id, 'Неверная дата, попробуй еще раз', reply_markup=cancel())
         if message.text == 'Отмена':
             bot.send_message(message.from_user.id, 'Возвращаю в начало диалога', reply_markup=menu())
             bot.set_state(message.from_user.id, UserDialogState.start_dialog)
     else:
+        message.text = 'Кастомная дата: ' + message.text
+        save_to_history(message)
         bot.send_message(message.from_user.id, 'Сейчас в Custom')
         bot.send_message(message.from_user.id, 'Самый дешевый билет Сочи -> Белград на выбранный день')
         bot.send_message(message.from_user.id, custom_daydata_request(valid_date))
         bot.send_message(message.from_user.id, 'Возвращаю в начало диалога', reply_markup=menu())
         bot.set_state(message.from_user.id, UserDialogState.start_dialog)
 
-
-
-
-
-@bot.message_handler(content_types=['text'],
-                     func=lambda msg: msg.text == "Назад"  # Если ввели назад или нажали на кнопку
-                     )
-def handle_back_button(message: Message):
-    bot.send_message(message.from_user.id, 'Возвращаю в начало диалога', reply_markup=menu())
-    bot.set_state(message.from_user.id, UserDialogState.start_dialog)  # Присваиваем состояние начала диалога
 
 
 

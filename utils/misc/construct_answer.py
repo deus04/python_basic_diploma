@@ -12,6 +12,7 @@ def construct_answer(data):
     departure_at = data['data'][0]['departure_at']
     price = data['data'][0]['price']
     end_link = root_link + data['data'][0]['link']
+# запись в историю
     result = 'Нашел рейс Сочи -> Белград:\n' \
              'Дата отправления:{}\n' \
              'Цена:{} руб.\n' \

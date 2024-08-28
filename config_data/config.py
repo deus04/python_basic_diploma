@@ -6,9 +6,13 @@ if not find_dotenv():
 else:
     load_dotenv()
 
+DB_PATH = "database.db"
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 RAPID_API_KEY = os.getenv("RAPID_API_KEY")
 DEFAULT_COMMANDS = (
     ("start", "Запустить бота"),
     ("help", "Вывести справку"),
+    ("history", "История")
 )
+
+DATE_FORMAT = "%d/%m/%Y %H:%M:%S"
