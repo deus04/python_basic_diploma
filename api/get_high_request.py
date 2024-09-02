@@ -1,7 +1,7 @@
 
 import requests
 import json
-from utils.misc.construct_answer import construct_answer, api_token, tomorrow
+from api.construct_answer import construct_answer, api_token, tomorrow
 
 
 print('high_request Ready')

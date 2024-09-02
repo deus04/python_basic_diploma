@@ -6,7 +6,7 @@ if not find_dotenv():
 else:
     load_dotenv()
 
-DB_PATH = "database.db"
+DB_PATH = "database/database.db"
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 RAPID_API_KEY = os.getenv("RAPID_API_KEY")
 DEFAULT_COMMANDS = (

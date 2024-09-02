@@ -1,18 +1,16 @@
 import time
-from handlers.default_handlers import start # TODO добавил эту строку и только тогда заработали дефолтные хендлеры
-                                            #  но только старт и хелп
 from loader import bot
+from typing import List, Dict
 from states.dialog_state import UserDialogState
 from telebot.types import Message
 from keyboards.reply.menu_keyboard import menu
 from keyboards.reply.menu_keyboard import get_ticket
 from keyboards.reply.menu_keyboard import cancel
-from utils.misc.get_low_request import low_request
-from utils.misc.get_high_request import high_request
-from utils.misc.get_custom_daydata import custom_daydata_request
-#from handlers.default_handlers import echo     # TODO если добавить ээту строку, то ехо снова начинает все перехватывать
+from api.get_low_request import low_request
+from api.get_high_request import high_request
+from api.get_custom_daydata import custom_daydata_request
 import datetime
-from models import Task, User, create_models
+from database.models import Task, User
 
 
 def save_to_history(message):
@@ -26,7 +24,14 @@ def save_to_history(message):
     bot.send_message(message.from_user.id, f"Добавлена запись в историю:\n{new_task}")
 
 
+def menu_clicked(message):
+    variants = "Low", "High", "дату"
+    return message.text.endswith(variants)
+
+
+#@bot.message_handler(func=menu_clicked) # TODO после добавления этой строки перестал работать
 @bot.message_handler(state=UserDialogState.start_dialog) # Ловим состояние
+#@bot.message_handler(func=menu_clicked)#, state=UserDialogState.start_dialog)
 def handle_start_dialog(message: Message):
     if message.text == 'Самый дешевый - Low':
         save_to_history(message)
