@@ -1,6 +1,5 @@
 from loader import bot
 from telebot.types import Message
-from states.dialog_state import UserDialogState
 from keyboards.reply.menu_keyboard import menu
 from peewee import IntegrityError
 from database.models import User
@@ -8,7 +7,6 @@ from database.models import User
 
 @bot.message_handler(commands=["start"], state="*") # Ловим команду
 def handle_command(message: Message):
-    #bot.delete_state(message.from_user.id, message.chat.id)
     user_id = message.from_user.id
     username = message.from_user.username
     first_name = message.from_user.first_name
@@ -30,8 +28,5 @@ def handle_command(message: Message):
                                            ' Сочи -> Белград. '
                                            '\nМожно выбрать готовые варианты на завтра или изменить дату',
                      reply_markup=menu())
-
-    bot.set_state(message.from_user.id, UserDialogState.start_dialog) #TODO Думаю что вот этой строки не должно быть
-                                                                    #   команды должны както по другому подключаться
 
 

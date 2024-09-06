@@ -1,6 +1,5 @@
 import time
 from loader import bot
-from typing import List, Dict
 from states.dialog_state import UserDialogState
 from telebot.types import Message
 from keyboards.reply.menu_keyboard import menu
@@ -10,7 +9,7 @@ from api.get_low_request import low_request
 from api.get_high_request import high_request
 from api.get_custom_daydata import custom_daydata_request
 import datetime
-from database.models import Task, User
+from database.models import Task
 
 
 def save_to_history(message):
@@ -29,10 +28,9 @@ def menu_clicked(message):
     return message.text.endswith(variants)
 
 
-#@bot.message_handler(func=menu_clicked) # TODO после добавления этой строки перестал работать
-@bot.message_handler(state=UserDialogState.start_dialog) # Ловим состояние
-#@bot.message_handler(func=menu_clicked)#, state=UserDialogState.start_dialog)
+@bot.message_handler(func=menu_clicked)
 def handle_start_dialog(message: Message):
+    bot.set_state(message.from_user.id, UserDialogState.start_dialog)
     if message.text == 'Самый дешевый - Low':
         save_to_history(message)
         bot.send_message(message.from_user.id, 'Выбран Low', reply_markup=get_ticket())
